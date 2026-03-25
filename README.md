@@ -1,10 +1,10 @@
 # ALM — API Latency Monitor
 
-A small CLI tool for keeping an eye on HTTP endpoints. It polls them on an interval, stores the results in a local SQLite database, and prints a summary table whenever you want one. Nothing fancy — no servers, no dashboards, no accounts.
+A small CLI tool for keeping an eye on HTTP endpoints. It polls them on an interval, stores the results in a local SQLite database, and prints a summary table whenever you want one. Nothing fancy and no servers, no dashboards, no accounts.
 
 ## Motivation
 
-I got tired of finding out an API was slow from a user complaint. Our internal dashboards tracked uptime but latency was a blind spot — things would be technically "up" while responding in 2-3 seconds instead of 200ms, and nobody would notice until customers started complaining. I wanted something I could point at any endpoint, leave running in a terminal, and get a warning before it became an incident. This is that tool.
+I got tired of finding out an API was slow from a user complaint. Our internal dashboards tracked uptime but latency was a blind spot. Things would be technically "up" while responding in 2-3 seconds instead of 200ms, and nobody would notice until customers started complaining. I wanted something I could point at any endpoint, leave running in a terminal, and get a warning before it became an incident. This is that tool.
 
 ## Install
 
@@ -100,4 +100,7 @@ alm clear
 pytest tests/ -v
 ```
 
-No network access needed — storage tests use an in-memory SQLite db and monitor tests mock `requests`.
+No network access needed. Storage tests use an in-memory SQLite db and monitor tests mock `requests`.
+
+## Contributing
+I believe every piece of work on earth is better with collaboration, even more so for technological advancements and code. Feel free to suggest new features, or create pull requests to contribute to the project!
