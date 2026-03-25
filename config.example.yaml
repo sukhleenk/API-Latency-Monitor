@@ -1,0 +1,9 @@
+endpoints:
+  - name: "Weather SLC"
+    url: "https://api.open-meteo.com/v1/forecast?latitude=40.7608&longitude=-111.8910&current_weather=true"
+    method: GET
+    threshold_ms: 500
+  - name: "Weather NYC"
+    url: "https://api.open-meteo.com/v1/forecast?latitude=40.7128&longitude=-74.0060&current_weather=true"
+    method: GET
+    threshold_ms: 500

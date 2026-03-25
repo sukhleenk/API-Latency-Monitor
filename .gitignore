@@ -1,0 +1,21 @@
+# tooling
+.claude/
+
+# user config and data — keep these local
+config.yaml
+alm_data.db
+
+# build / packaging
+*.egg-info/
+dist/
+build/
+__pycache__/
+*.py[cod]
+
+# test cache
+.pytest_cache/
+
+# env
+.env
+.venv/
+venv/
