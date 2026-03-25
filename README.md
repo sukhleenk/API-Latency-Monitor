@@ -1,4 +1,4 @@
-# alm — API Latency Monitor
+# ALM — API Latency Monitor
 
 A small CLI tool for keeping an eye on HTTP endpoints. It polls them on an interval, stores the results in a local SQLite database, and prints a summary table whenever you want one. Nothing fancy — no servers, no dashboards, no accounts.
 
