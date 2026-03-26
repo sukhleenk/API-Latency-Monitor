@@ -1,6 +1,7 @@
 # ALM — API Latency Monitor
 
 ![Tests](https://github.com/sukhleenk/API-Latency-Monitor/actions/workflows/tests.yml/badge.svg)
+![PyPI](https://img.shields.io/pypi/v/api-latency-monitor)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -13,14 +14,14 @@ I got tired of finding out an API was slow from a user complaint. Our internal d
 ## Install
 
 ```bash
-git clone https://github.com/sukhleenk/API-Latency-Monitor
-cd alm
-pip install -e .
+pip install api-latency-monitor
 ```
 
-For dev (includes pytest):
+Or clone and install locally for development:
 
 ```bash
+git clone https://github.com/sukhleenk/API-Latency-Monitor
+cd API-Latency-Monitor
 pip install -e ".[dev]"
 ```
 

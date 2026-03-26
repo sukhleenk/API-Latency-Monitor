@@ -9,6 +9,8 @@ alm_data.db
 *.egg-info/
 dist/
 build/
+*.whl
+*.tar.gz
 __pycache__/
 *.py[cod]
 
