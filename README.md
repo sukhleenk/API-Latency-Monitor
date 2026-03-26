@@ -1,5 +1,9 @@
 # ALM — API Latency Monitor
 
+![Tests](https://github.com/sukhleenk/API-Latency-Monitor/actions/workflows/tests.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 A small CLI tool for keeping an eye on HTTP endpoints. It polls them on an interval, stores the results in a local SQLite database, and prints a summary table whenever you want one. Nothing fancy and no servers, no dashboards, no accounts.
 
 ## Motivation
@@ -9,7 +13,7 @@ I got tired of finding out an API was slow from a user complaint. Our internal d
 ## Install
 
 ```bash
-git clone https://github.com/yourusername/alm
+git clone https://github.com/sukhleenk/API-Latency-Monitor
 cd alm
 pip install -e .
 ```
