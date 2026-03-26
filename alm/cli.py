@@ -3,9 +3,9 @@ import yaml
 from collections import defaultdict
 from pathlib import Path
 
-from .config import load_config, DEFAULT_CONFIG_PATH
-from .storage import init_db, get_all_endpoint_stats, get_endpoint_stats, clear_all, get_checks_since
-from .monitor import run_monitor
+from .config import load_config, Endpoint, DEFAULT_CONFIG_PATH
+from .storage import init_db, get_all_endpoint_stats, get_endpoint_stats, clear_all, get_checks_since, get_last_check_per_endpoint
+from .monitor import run_monitor, check_endpoint
 from .report import print_report, export_csv
 
 
@@ -96,6 +96,84 @@ def _compute_stats_from_rows(rows):
 
 
 @cli.command()
+@click.option("--config", default="config.yaml", help="Path to config file")
+def status(config):
+    """Show the most recent check for each endpoint."""
+    conn = init_db()
+    try:
+        rows = get_last_check_per_endpoint(conn)
+    finally:
+        conn.close()
+
+    if not rows:
+        click.echo("No data yet. Run `alm monitor` first.")
+        return
+
+    from rich.console import Console
+    from rich.table import Table
+    from rich import box
+
+    console = Console()
+    table = Table(box=box.ROUNDED, show_header=True, header_style="bold cyan")
+    table.add_column("Endpoint", style="bold", min_width=15)
+    table.add_column("Last Check", justify="right")
+    table.add_column("Status Code", justify="right")
+    table.add_column("Latency", justify="right")
+    table.add_column("Result", justify="center")
+
+    for row in rows:
+        ts = row["timestamp"][:19].replace("T", " ")
+        ms = f"{row['response_time_ms']:.1f}ms" if row["response_time_ms"] is not None else "N/A"
+        code = str(row["status_code"]) if row["status_code"] is not None else "N/A"
+
+        if not row["success"]:
+            result = "[bold red]FAIL[/bold red]"
+        elif row["threshold_breached"]:
+            result = "[bold yellow]SLOW[/bold yellow]"
+        else:
+            result = "[bold green]OK[/bold green]"
+
+        table.add_row(row["endpoint_name"], ts, code, ms, result)
+
+    console.print(table)
+
+
+@cli.command()
+@click.argument("name_or_url")
+@click.option("--config", default="config.yaml", help="Path to config file")
+def ping(name_or_url, config):
+    """Run a one-off check against an endpoint. Pass a name from config or a raw URL."""
+    from rich.console import Console
+    console = Console()
+
+    endpoint = None
+
+    config_path = Path(config)
+    if config_path.exists():
+        try:
+            endpoints = load_config(config_path)
+            endpoint = next((e for e in endpoints if e.name == name_or_url), None)
+        except Exception:
+            pass
+
+    if endpoint is None:
+        endpoint = Endpoint(name=name_or_url, url=name_or_url)
+
+    console.print(f"Pinging [bold]{endpoint.name}[/bold]...")
+    result = check_endpoint(endpoint)
+
+    ms = f"{result['response_time_ms']:.1f}ms" if result["response_time_ms"] is not None else "N/A"
+    code = str(result["status_code"]) if result["status_code"] is not None else "N/A"
+
+    if not result["success"]:
+        console.print(f"[bold red]FAIL[/bold red]  HTTP {code}  {ms}")
+    elif result["threshold_breached"]:
+        console.print(f"[bold yellow]SLOW[/bold yellow]  HTTP {code}  {ms}  (exceeded {endpoint.threshold_ms}ms threshold)")
+    else:
+        console.print(f"[bold green]OK[/bold green]    HTTP {code}  {ms}")
+
+
+@cli.command()
 def clear():
     """Clear all stored monitoring history."""
     conn = init_db()
@@ -116,10 +194,17 @@ def add(config):
     method = click.prompt("HTTP method", default="GET").upper()
     threshold_ms = click.prompt("Threshold (ms)", default=500, type=int)
 
+    body_str = None
+    if method in ("POST", "PUT", "PATCH"):
+        if click.confirm("Add a JSON request body?", default=False):
+            body_str = click.prompt("JSON body")
+
     click.echo(f"\n  Name:      {name}")
     click.echo(f"  URL:       {url}")
     click.echo(f"  Method:    {method}")
     click.echo(f"  Threshold: {threshold_ms}ms")
+    if body_str:
+        click.echo(f"  Body:      {body_str}")
 
     if not click.confirm("\nSave to config?"):
         click.echo("Aborted.")
@@ -134,12 +219,15 @@ def add(config):
     if not data.get("endpoints"):
         data["endpoints"] = []
 
-    data["endpoints"].append({
-        "name": name,
-        "url": url,
-        "method": method,
-        "threshold_ms": threshold_ms,
-    })
+    entry = {"name": name, "url": url, "method": method, "threshold_ms": threshold_ms}
+    if body_str:
+        import json
+        try:
+            entry["body"] = json.loads(body_str)
+        except json.JSONDecodeError:
+            click.echo("Warning: body was not valid JSON, skipping it.")
+
+    data["endpoints"].append(entry)
 
     with open(config_path, "w") as f:
         yaml.dump(data, f, default_flow_style=False, allow_unicode=True)

@@ -27,6 +27,7 @@ def check_endpoint(endpoint, timeout=10, max_retries=3):
                 method=endpoint.method,
                 url=endpoint.url,
                 headers=endpoint.headers,
+                json=endpoint.body if endpoint.body else None,
                 timeout=timeout,
             )
             elapsed_ms = (time.perf_counter() - start) * 1000.0

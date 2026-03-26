@@ -7,3 +7,13 @@ endpoints:
     url: "https://api.open-meteo.com/v1/forecast?latitude=40.7128&longitude=-74.0060&current_weather=true"
     method: GET
     threshold_ms: 500
+
+  # example POST endpoint with a JSON body and auth header
+  # - name: "My API"
+  #   url: "https://api.example.com/data"
+  #   method: POST
+  #   headers:
+  #     Authorization: "Bearer your-token"
+  #   body:
+  #     query: "hello"
+  #   threshold_ms: 300

@@ -11,6 +11,7 @@ class Endpoint:
     url: str
     method: str = "GET"
     headers: dict = field(default_factory=dict)
+    body: dict = field(default_factory=dict)
     threshold_ms: int = 500
 
 
@@ -26,6 +27,7 @@ def load_config(path: Path = DEFAULT_CONFIG_PATH) -> list[Endpoint]:
             url=ep["url"],
             method=ep.get("method", "GET").upper(),
             headers=ep.get("headers", {}),
+            body=ep.get("body", {}),
             threshold_ms=ep.get("threshold_ms", 500),
         ))
     return endpoints

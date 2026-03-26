@@ -97,6 +97,22 @@ def get_endpoint_stats(conn, endpoint_name):
     return d
 
 
+def get_last_check_per_endpoint(conn):
+    rows = conn.execute(
+        """
+        SELECT c.*
+        FROM checks c
+        INNER JOIN (
+            SELECT endpoint_name, MAX(timestamp) AS latest
+            FROM checks
+            GROUP BY endpoint_name
+        ) latest ON c.endpoint_name = latest.endpoint_name AND c.timestamp = latest.latest
+        ORDER BY c.endpoint_name
+        """
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
 def clear_all(conn):
     conn.execute("DELETE FROM checks")
     conn.commit()
