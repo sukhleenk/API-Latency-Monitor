@@ -99,25 +99,24 @@ ALM can send you Telegram messages when an endpoint degrades or fails, and again
 
 **Setup:**
 
-1. Open Telegram and search for [@api_latency_bot](https://t.me/api_latency_bot) — send it any message to start a conversation
-2. Get your chat ID by messaging [@userinfobot](https://t.me/userinfobot), which will reply with your user ID
-3. Add a `notifications` block to your `config.yaml`:
+1. Create your own Telegram bot — message [@BotFather](https://t.me/BotFather), send `/newbot`, and follow the prompts. It gives you a bot token.
+2. Start a chat with your new bot (search its username in Telegram and send any message)
+3. Get your chat ID by messaging [@userinfobot](https://t.me/userinfobot), which will reply with your user ID
+4. Add a `notifications` block to your `config.yaml` (it's gitignored, so credentials stay local):
 
 ```yaml
 notifications:
   telegram:
-    token: "8776424559:AAH5o0iMb-yLqGUnftO9EKpSq6xCB0VpNDk"
+    token: "your-bot-token-here"
     chat_id: "your-chat-id-here"
 ```
 
 Or use environment variables instead:
 
 ```bash
-export ALM_TELEGRAM_TOKEN="8776424559:AAH5o0iMb-yLqGUnftO9EKpSq6xCB0VpNDk"
+export ALM_TELEGRAM_TOKEN="your-bot-token-here"
 export ALM_TELEGRAM_CHAT_ID="your-chat-id-here"
 ```
-
-Each user gets their own alerts. The bot routes messages by chat ID, so you only receive notifications for your own monitored endpoints.
 
 **Alert behavior:**
 
