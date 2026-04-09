@@ -1,5 +1,6 @@
 # tooling
 .claude/
+.sfdx/
 
 # user config and data — keep these local
 config.yaml

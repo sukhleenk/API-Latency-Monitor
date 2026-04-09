@@ -60,11 +60,14 @@ def detect_degradation(endpoint_name, latest_ms, recent_checks):
     return latest_ms > avg * 1.5
 
 
-def run_monitor(endpoints, storage_conn, interval=60):
+def run_monitor(endpoints, storage_conn, interval=60, notifier=None):
     from .storage import save_check, get_recent_checks
 
     console.print("[bold cyan]ALM - API Latency Monitor[/bold cyan]")
-    console.print(f"Monitoring {len(endpoints)} endpoint(s) every {interval}s. Press Ctrl+C to stop.\n")
+    console.print(f"Monitoring {len(endpoints)} endpoint(s) every {interval}s. Press Ctrl+C to stop.")
+    if notifier:
+        console.print("[dim]Telegram notifications enabled.[/dim]")
+    console.print()
 
     try:
         while True:
@@ -90,6 +93,8 @@ def run_monitor(endpoints, storage_conn, interval=60):
 
                 if not result["success"]:
                     console.print(f"  [bold red][FAIL][/bold red] {endpoint.name} | HTTP {status_str} | {ms_str}")
+                    if notifier:
+                        notifier.on_fail(endpoint.name, result["status_code"])
                 else:
                     recent = get_recent_checks(storage_conn, endpoint.name, limit=10)
                     is_degraded = (
@@ -99,8 +104,12 @@ def run_monitor(endpoints, storage_conn, interval=60):
 
                     if is_degraded:
                         console.print(f"  [bold yellow][WARN][/bold yellow] {endpoint.name} | HTTP {status_str} | {ms_str} (degraded)")
+                        if notifier:
+                            notifier.on_warn(endpoint.name, result["response_time_ms"], endpoint.threshold_ms, "Degraded")
                     else:
                         console.print(f"  [bold green][OK][/bold green] {endpoint.name} | HTTP {status_str} | {ms_str}")
+                        if notifier:
+                            notifier.on_ok(endpoint.name, result["response_time_ms"])
 
             console.print()
             time.sleep(interval)

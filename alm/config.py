@@ -15,7 +15,7 @@ class Endpoint:
     threshold_ms: int = 500
 
 
-def load_config(path: Path = DEFAULT_CONFIG_PATH) -> list[Endpoint]:
+def load_config(path: Path = DEFAULT_CONFIG_PATH) -> tuple[list[Endpoint], dict]:
     if not path.exists():
         raise FileNotFoundError(f"Config file not found: {path}")
     with open(path) as f:
@@ -30,4 +30,5 @@ def load_config(path: Path = DEFAULT_CONFIG_PATH) -> list[Endpoint]:
             body=ep.get("body", {}),
             threshold_ms=ep.get("threshold_ms", 500),
         ))
-    return endpoints
+    notifications = data.get("notifications") or {}
+    return endpoints, notifications

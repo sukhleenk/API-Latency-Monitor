@@ -1,3 +1,13 @@
+# Telegram notifications (optional)
+# Set token/chat_id here OR via env vars ALM_TELEGRAM_TOKEN / ALM_TELEGRAM_CHAT_ID.
+# Alerts fire on first degraded/failed poll, then again every 5 consecutive polls.
+# A recovery message is sent when the endpoint returns to normal.
+#
+# notifications:
+#   telegram:
+#     token: "123456:ABC-your-bot-token"
+#     chat_id: "your-chat-id"
+
 endpoints:
   - name: "Weather SLC"
     url: "https://api.open-meteo.com/v1/forecast?latitude=40.7608&longitude=-111.8910&current_weather=true"

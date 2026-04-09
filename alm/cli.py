@@ -4,6 +4,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from .config import load_config, Endpoint, DEFAULT_CONFIG_PATH
+from .notifier import load_notifier
 from .storage import init_db, get_all_endpoint_stats, get_endpoint_stats, clear_all, get_checks_since, get_last_check_per_endpoint
 from .monitor import run_monitor, check_endpoint
 from .report import print_report, export_csv
@@ -22,7 +23,7 @@ def monitor(interval, config):
     """Start monitoring all configured endpoints."""
     config_path = Path(config)
     try:
-        endpoints = load_config(config_path)
+        endpoints, notifications = load_config(config_path)
     except FileNotFoundError as e:
         click.echo(f"Error: {e}", err=True)
         raise SystemExit(1)
@@ -31,9 +32,11 @@ def monitor(interval, config):
         click.echo("No endpoints found in config. Use `alm add` to add one.")
         raise SystemExit(0)
 
+    notifier = load_notifier(notifications)
+
     conn = init_db()
     try:
-        run_monitor(endpoints, conn, interval=interval)
+        run_monitor(endpoints, conn, interval=interval, notifier=notifier)
     finally:
         conn.close()
 
@@ -151,7 +154,7 @@ def ping(name_or_url, config):
     config_path = Path(config)
     if config_path.exists():
         try:
-            endpoints = load_config(config_path)
+            endpoints, _ = load_config(config_path)
             endpoint = next((e for e in endpoints if e.name == name_or_url), None)
         except Exception:
             pass
